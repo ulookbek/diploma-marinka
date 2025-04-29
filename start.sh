@@ -16,16 +16,22 @@ source $VENV_DIR/bin/activate
 pip install --upgrade pip
 pip install fastapi uvicorn
 
-# Запускаем сервер
+# Запускаем сервер в фоне
 echo "Запускаю сервер..."
 uvicorn app:app --reload &
 
-# Ждём немного чтобы сервер успел стартовать
+# Ждём чуть-чуть, чтобы сервер поднялся
 sleep 2
 
-# Открываем браузер на localhost
-echo "Открываю браузер..."
-open "http://127.0.0.1:8000/"
+# Открываем локальный файл index.html в браузере
+INDEX_PATH="$(pwd)/index.html"
 
-# Оставляем сервер работающим в фоне
+if [ -f "$INDEX_PATH" ]; then
+  echo "Открываю файл: $INDEX_PATH"
+  open "file://$INDEX_PATH"
+else
+  echo "Файл index.html не найден в $(pwd)"
+fi
+
+# Держим скрипт пока сервер работает
 wait

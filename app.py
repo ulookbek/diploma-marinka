@@ -6,8 +6,6 @@ import os
 import requests
 import json
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 
 # Загрузка .env файла
 load_dotenv()
@@ -51,13 +49,6 @@ def save_review(review_text):
     reviews.append(review_text)
     with open(REVIEWS_FILE, "w", encoding="utf-8") as f:
         json.dump(reviews, f, ensure_ascii=False, indent=2)
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# Роут чтобы отдавать главную страницу
-@app.get("/")
-async def read_index():
-    return FileResponse('static/index.html')
 
 # 1. Эндпоинт для добавления нового отзыва
 @app.post("/add-review")
