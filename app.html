@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Отзывы: добавление и классификация</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: vertical;
+        }
+
+        .buttons {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .section {
+            margin-top: 30px;
+        }
+
+        .result-item, .review-item {
+            background: white;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-left: 5px solid #007bff;
+            border-radius: 4px;
+        }
+
+        .status {
+            margin-top: 15px;
+            color: #555;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Отзывы: добавление и классификация</h1>
+
+<!-- Форма для ввода нового отзыва -->
+<input type="text" id="reviewInput" placeholder="Введите отзыв...">
+<div class="buttons">
+    <button onclick="addReview()">Добавить отзыв</button>
+    <button onclick="classifyReviews()">Классифицировать отзывы</button>
+</div>
+
+<div class="status" id="status"></div>
+
+<div class="section">
+    <h2>Все отзывы:</h2>
+    <div class="reviews" id="reviews"></div>
+</div>
+
+<div class="section">
+    <h2>Результаты классификации:</h2>
+    <div class="results" id="results"></div>
+</div>
+
+<script>
+    async function addReview() {
+        const reviewText = document.getElementById('reviewInput').value.trim();
+        if (!reviewText) {
+            alert("Введите текст отзыва.");
+            return;
+        }
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/add-review', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ review: reviewText })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                alert(`Ошибка: ${error.detail}`);
+                return;
+            }
+
+            document.getElementById('reviewInput').value = '';
+            document.getElementById('status').innerText = "Отзыв успешно добавлен!";
+            await loadReviews(); // Загружаем обновленный список отзывов
+        } catch (error) {
+            alert(`Ошибка соединения: ${error}`);
+        }
+    }
+
+    async function classifyReviews() {
+        document.getElementById('status').innerText = "Анализируем отзывы...";
+        document.getElementById('results').innerHTML = '';
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/classify-reviews', {
+                method: 'GET'
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                alert(`Ошибка: ${error.detail}`);
+                document.getElementById('status').innerText = '';
+                return;
+            }
+
+            const data = await response.json();
+            const resultsDiv = document.getElementById('results');
+            document.getElementById('status').innerText = `Получено ${data.results.length} классификаций.`;
+
+            data.results.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'result-item';
+                div.innerHTML = `<strong>Отзыв:</strong> ${item.review}<br><strong>Классификация:</strong> ${item.classification}`;
+                resultsDiv.appendChild(div);
+            });
+        } catch (error) {
+            alert(`Ошибка соединения: ${error}`);
+            document.getElementById('status').innerText = '';
+        }
+    }
+
+    async function loadReviews() {
+        try {
+            const response = await fetch('http://127.0.0.1:8000/get-reviews', {
+                method: 'GET'
+            });
+
+            if (!response.ok) {
+                console.error('Не удалось загрузить отзывы.');
+                return;
+            }
+
+            const data = await response.json();
+            const reviewsDiv = document.getElementById('reviews');
+            reviewsDiv.innerHTML = '';
+
+            data.reviews.forEach(review => {
+                const div = document.createElement('div');
+                div.className = 'review-item';
+                div.innerText = review;
+                reviewsDiv.appendChild(div);
+            });
+        } catch (error) {
+            console.error('Ошибка загрузки отзывов:', error);
+        }
+    }
+
+    // При загрузке страницы загружаем отзывы
+    window.onload = loadReviews;
+</script>
+
+</body>
+</html>

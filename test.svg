@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="150" viewBox="0 0 400 150">
+    <!-- Красный круг -->
+    <circle cx="75" cy="75" r="60" fill="#E53935"/>
+
+    <!-- Белый медицинский крест -->
+    <path d="M75 25
+           v30 h-30 v20 h30 v30 h20 v-30 h30 v-20 h-30 v-30 z"
+          fill="white"/>
+
+    <!-- Волнистая линия внутри креста (упрощённая S-форма) -->
+    <path d="M60 35
+           q20 10 10 30
+           q-10 20 10 30"
+          fill="none" stroke="#E53935" stroke-width="4"/>
+
+    <!-- Текст DOC -->
+    <text x="160" y="70" font-family="Arial, sans-serif" font-size="48" fill="black">DOC</text>
+
+    <!-- Подпись university clinic -->
+    <text x="160" y="110" font-family="Arial, sans-serif" font-size="20" fill="black">university clinic</text>
+</svg>
